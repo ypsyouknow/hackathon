@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueryNet | Professional Q&A Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .rich-text-editor {
+            min-height: 150px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        .rich-text-editor:focus {
+            outline: none;
+            border-color: #7dd3fc;
+            box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.5);
+        }
+        .topic-chip {
+            transition: all 0.2s ease;
+        }
+        .topic-chip:hover {
+            transform: translateY(-2px);
+        }
+        .dark .dark\:bg-slate-900 {
+            background-color: #0f172a;
+        }
+        .dark .dark\:bg-slate-800 {
+            background-color: #1e293b;
+        }
+        .dark .dark\:text-slate-100 {
+            color: #f1f5f9;
+        }
+        .dark .dark\:border-slate-700 {
+            border-color: #334155;
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-comments text-primary-600 dark:text-primary-400 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-primary-600 dark:text-primary-400">QueryNet</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="#" class="border-primary-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Topics
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Leaderboard
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <div class="relative mx-4">
+                        <input type="text" placeholder="Search questions..." class="bg-gray-100 dark:bg-slate-700 border-0 rounded-full py-2 px-4 pl-10 w-64 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <button class="p-1 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <button id="darkModeToggle" class="p-1 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 ml-2">
+                        <i class="fas fa-moon text-xl"></i>
+                    </button>
+                    <div class="ml-3 relative">
+                        <div>
+                            <button id="user-menu-button" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User profile">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden sm:hidden bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="#" class="bg-primary-50 border-primary-500 text-primary-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium dark:bg-slate-700 dark:text-primary-400">
+                    Home
+                </a>
+                <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium dark:text-gray-300 dark:hover:bg-slate-700 dark:hover:text-gray-200">
+                    Topics
+                </a>
+                <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium dark:text-gray-300 dark:hover:bg-slate-700 dark:hover:text-gray-200">
+                    Leaderboard
+                </a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-200 dark:border-slate-700">
+                <div class="flex items-center px-4">
+                    <div class="flex-shrink-0">
+                        <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User profile">
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium text-gray-800 dark:text-white">John Doe</div>
+                        <div class="text-sm font-medium text-gray-500 dark:text-gray-300">john@example.com</div>
+                    </div>
+                    <button class="ml-auto flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                </div>
+                <div class="mt-3 space-y-1">
+                    <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:hover:text-gray-200">Your Profile</a>
+                    <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:hover:text-gray-200">Settings</a>
+                    <a href="#" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:hover:text-gray-200">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Left sidebar -->
+            <div class="w-full lg:w-1/4 space-y-4">
+                <!-- User profile card -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <div class="flex items-center space-x-4">
+                        <img class="h-16 w-16 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User profile">
+                        <div>
+                            <h3 class="font-bold text-lg">John Doe</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">Senior Developer @TechCorp</p>
+                            <div class="flex items-center mt-1">
+                                <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-primary-900 dark:text-primary-300">Top Contributor</span>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300 ml-2">Verified</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">Full-stack developer with 8+ years of experience in JavaScript, React, Node.js, and cloud architecture.</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700 flex justify-between">
+                        <div class="text-center">
+                            <p class="text-gray-900 dark:text-white font-bold">142</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">Answers</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-gray-900 dark:text-white font-bold">28</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">Questions</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-gray-900 dark:text-white font-bold">5.2k</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">Reputation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick actions -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-3">Quick Actions</h3>
+                    <button class="w-full flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                        <i class="fas fa-plus mr-2"></i> Ask a Question
+                    </button>
+                    <button class="w-full flex items-center justify-center px-4 py-2 mt-2 bg-white text-primary-600 rounded-md border border-primary-600 hover:bg-primary-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                        <i class="fas fa-search mr-2"></i> Browse Topics
+                    </button>
+                </div>
+
+                <!-- Your topics -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-medium text-gray-900 dark:text-white">Your Topics</h3>
+                        <button class="text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 text-sm font-medium">Edit</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-primary-900 dark:text-primary-300 flex items-center">
+                            JavaScript <i class="fas fa-check-circle ml-1 text-xs"></i>
+                        </span>
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-primary-900 dark:text-primary-300">React</span>
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-primary-900 dark:text-primary-300">Node.js</span>
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-primary-900 dark:text-primary-300">AWS</span>
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-primary-900 dark:text-primary-300">TypeScript</span>
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-primary-900 dark:text-primary-300">GraphQL</span>
+                    </div>
+                </div>
+
+                <!-- Recent badges -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-3">Recent Badges</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-100 p-2 rounded-full text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Gold Contributor</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Earned 3 days ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-100 p-2 rounded-full text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Verified Expert</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Earned 2 weeks ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-100 p-2 rounded-full text-green-600 dark:bg-green-900 dark:text-green-300">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Hot Streak</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">7 days active</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <div class="w-full lg:w-2/4 space-y-4">
+                <!-- Ask question card -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <div class="flex items-start space-x-3">
+                        <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User profile">
+                        <div class="flex-1">
+                            <input type="text" placeholder="What's your professional question?" class="w-full bg-gray-100 dark:bg-slate-700 border-0 rounded-lg py-2 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none transition">
+                            <div class="mt-2 flex justify-between items-center">
+                                <div class="flex space-x-2">
+                                    <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700">
+                                        <i class="fas fa-hashtag"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700">
+                                        <i class="fas fa-code"></i>
+                                    </button>
+                                </div>
+                                <button class="px-4 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                                    Ask
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed tabs -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+                    <div class="border-b border-gray-200 dark:border-slate-700">
+                        <nav class="flex -mb-px">
+                            <button class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm border-primary-500 text-primary-600 dark:text-primary-400">
+                                <i class="fas fa-fire mr-1"></i> Trending
+                            </button>
+                            <button class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200">
+                                <i class="far fa-clock mr-1"></i> Recent
+                            </button>
+                            <button class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200">
+                                <i class="fas fa-lightbulb mr-1"></i> Recommended
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Question cards -->
+                <div class="space-y-4">
+                    <!-- Question 1 -->
+                    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-slate-700">
+                        <div class="p-4">
+                            <div class="flex items-start space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="User profile">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium">Sarah Johnson</h4>
+                                            <p class="text-gray-500 dark:text-gray-400 text-sm">Product Manager @InnovateCo</p>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Verified</span>
+                                    </div>
+                                    <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">What's the best approach for implementing microservices in a legacy monolithic application?</h3>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#architecture</span>
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#microservices</span>
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#devops</span>
+                                    </div>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <div class="flex space-x-4">
+                                            <button class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+                                                <i class="far fa-comment-alt mr-1"></i> 12 answers
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-green-600 dark:hover:text-green-400">
+                                                <i class="far fa-thumbs-up mr-1"></i> 24
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-blue-600 dark:hover:text-blue-400">
+                                                <i class="fas fa-share-alt mr-1"></i>
+                                            </button>
+                                        </div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">2 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-700 px-4 py-3 border-t border-gray-200 dark:border-slate-600">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-check-circle text-green-500"></i>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Mark Wilson</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">answered this question</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-slate-700">
+                        <div class="p-4">
+                            <div class="flex items-start space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User profile">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium">Michael Chen</h4>
+                                            <p class="text-gray-500 dark:text-gray-400 text-sm">Financial Analyst @GlobalBank</p>
+                                        </div>
+                                    </div>
+                                    <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">How should I approach risk assessment for emerging markets investments in the current economic climate?</h3>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#finance</span>
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#investing</span>
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#risk-management</span>
+                                    </div>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <div class="flex space-x-4">
+                                            <button class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+                                                <i class="far fa-comment-alt mr-1"></i> 7 answers
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-green-600 dark:hover:text-green-400">
+                                                <i class="far fa-thumbs-up mr-1"></i> 15
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-blue-600 dark:hover:text-blue-400">
+                                                <i class="fas fa-share-alt mr-1"></i>
+                                            </button>
+                                        </div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">5 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-slate-700">
+                        <div class="p-4">
+                            <div class="flex items-start space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/68.jpg" alt="User profile">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-medium">Emma Rodriguez</h4>
+                                            <p class="text-gray-500 dark:text-gray-400 text-sm">UX Designer @CreativeMinds</p>
+                                        </div>
+                                        <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">Top Expert</span>
+                                    </div>
+                                    <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">What are the most effective user research methods for validating a new SaaS product concept?</h3>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#ux-design</span>
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#user-research</span>
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#product-development</span>
+                                    </div>
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <div class="flex space-x-4">
+                                            <button class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+                                                <i class="far fa-comment-alt mr-1"></i> 9 answers
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-green-600 dark:hover:text-green-400">
+                                                <i class="far fa-thumbs-up mr-1"></i> 32
+                                            </button>
+                                            <button class="flex items-center text-gray-500 hover:text-blue-600 dark:hover:text-blue-400">
+                                                <i class="fas fa-share-alt mr-1"></i>
+                                            </button>
+                                        </div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">1 day ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-700 px-4 py-3 border-t border-gray-200 dark:border-slate-600">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-award text-yellow-500"></i>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Featured answer</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">by David Kim</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right sidebar -->
+            <div class="w-full lg:w-1/4 space-y-4">
+                <!-- Trending topics -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-3">Trending Topics</h3>
+                    <div class="space-y-3">
+                        <a href="#" class="flex items-center justify-between group">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-2 rounded-lg text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <span class="ml-3 font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">JavaScript</span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">1.2k questions</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-between group">
+                            <div class="flex items-center">
+                                <div class="bg-green-100 p-2 rounded-lg text-green-600 dark:bg-green-900 dark:text-green-300">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <span class="ml-3 font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">Finance</span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">856 questions</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-between group">
+                            <div class="flex items-center">
+                                <div class="bg-purple-100 p-2 rounded-lg text-purple-600 dark:bg-purple-900 dark:text-purple-300">
+                                    <i class="fas fa-paint-brush"></i>
+                                </div>
+                                <span class="ml-3 font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">UX Design</span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">723 questions</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-between group">
+                            <div class="flex items-center">
+                                <div class="bg-red-100 p-2 rounded-lg text-red-600 dark:bg-red-900 dark:text-red-300">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <span class="ml-3 font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">Cybersecurity</span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">612 questions</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-between group">
+                            <div class="flex items-center">
+                                <div class="bg-yellow-100 p-2 rounded-lg text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300">
+                                    <i class="fas fa-cloud"></i>
+                                </div>
+                                <span class="ml-3 font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">Cloud Computing</span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">598 questions</span>
+                        </a>
+                    </div>
+                    <button class="mt-4 w-full text-center text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 text-sm font-medium">
+                        View all topics
+                    </button>
+                </div>
+
+                <!-- Who to follow -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-3">Top Experts</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/12.jpg" alt="User profile">
+                                <div>
+                                    <h4 class="font-medium text-sm">Lisa Wong</h4>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Data Scientist @AIResearch</p>
+                                </div>
+                            </div>
+                            <button class="px-3 py-1 bg-white text-primary-600 text-xs font-medium rounded-full border border-primary-600 hover:bg-primary-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                                Follow
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/75.jpg" alt="User profile">
+                                <div>
+                                    <h4 class="font-medium text-sm">Robert Taylor</h4>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Legal Counsel @LawFirm</p>
+                                </div>
+                            </div>
+                            <button class="px-3 py-1 bg-white text-primary-600 text-xs font-medium rounded-full border border-primary-600 hover:bg-primary-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                                Follow
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/33.jpg" alt="User profile">
+                                <div>
+                                    <h4 class="font-medium text-sm">Maria Garcia</h4>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Marketing Director @BrandUp</p>
+                                </div>
+                            </div>
+                            <button class="px-3 py-1 bg-white text-primary-600 text-xs font-medium rounded-full border border-primary-600 hover:bg-primary-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                                Follow
+                            </button>
+                        </div>
+                    </div>
+                    <button class="mt-4 w-full text-center text-primary-600 hover:text-primary-800 dark:hover:text-primary-400 text-sm font-medium">
+                        View more experts
+                    </button>
+                </div>
+
+                <!-- Community stats -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-3">Community Stats</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 dark:bg-slate-700 p-3 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">24.5k</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Questions</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-700 p-3 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">56.2k</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Answers</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-700 p-3 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">8.3k</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Experts</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-700 p-3 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">142</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Topics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-slate-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-2">Weekly Digest</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Get the top questions and answers delivered to your inbox weekly.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="flex-1 bg-gray-100 dark:bg-slate-700 border-0 rounded-l-lg py-2 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none transition text-sm">
+                        <button class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-r-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Answer modal -->
+    <div id="answerModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white dark:bg-slate-800 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Post Your Answer</h3>
+                <button id="closeAnswerModal" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Question:</h4>
+                <p class="text-gray-700 dark:text-gray-300">What's the best approach for implementing microservices in a legacy monolithic application?</p>
+            </div>
+            <div class="mb-4">
+                <div class="rich-text-editor" contenteditable="true">
+                    <p>Start by explaining your experience with similar transitions...</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-4">
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#architecture</span>
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#microservices</span>
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">#devops</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <input id="anonymousAnswer" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:bg-slate-700 dark:border-slate-600">
+                    <label for="anonymousAnswer" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Post anonymously</label>
+                </div>
+                <button class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                    Post Answer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ask question modal -->
+    <div id="askModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white dark:bg-slate-800 dark:border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Ask a Question</h3>
+                <button id="closeAskModal" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label for="questionTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question Title</label>
+                <input type="text" id="questionTitle" class="w-full bg-gray-100 dark:bg-slate-700 border-0 rounded-lg py-2 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none transition" placeholder="Be specific and imagine you're asking a question to another expert">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Details</label>
+                <div class="rich-text-editor" contenteditable="true">
+                    <p>Provide all the details someone would need to answer your question...</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="questionTopics" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Topics</label>
+                <input type="text" id="questionTopics" class="w-full bg-gray-100 dark:bg-slate-700 border-0 rounded-lg py-2 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none transition" placeholder="Add up to 5 topics">
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300 flex items-center">
+                        JavaScript <button class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><i class="fas fa-times text-xs"></i></button>
+                    </span>
+                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300 flex items-center">
+                        Architecture <button class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><i class="fas fa-times text-xs"></i></button>
+                    </span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <input id="anonymousQuestion" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:bg-slate-700 dark:border-slate-600">
+                    <label for="anonymousQuestion" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Post anonymously</label>
+                </div>
+                <button class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition">
+                    Post Question
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+
+        // Check for saved user preference or use OS preference
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            darkModeToggle.innerHTML = '<i class="fas fa-sun text-xl"></i>';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('darkMode', html.classList.contains('dark'));
+            
+            if (html.classList.contains('dark')) {
+                darkModeToggle.innerHTML = '<i class="fas fa-sun text-xl"></i>';
+            } else {
+                darkModeToggle.innerHTML = '<i class="fas fa-moon text-xl"></i>';
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Answer modal
+        const answerModal = document.getElementById('answerModal');
+        const closeAnswerModal = document.getElementById('closeAnswerModal');
+        const answerButtons = document.querySelectorAll('[data-answer]');
+
+        answerButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                answerModal.classList.remove('hidden');
+            });
+        });
+
+        closeAnswerModal.addEventListener('click', () => {
+            answerModal.classList.add('hidden');
+        });
+
+        // Ask question modal
+        const askModal = document.getElementById('askModal');
+        const closeAskModal = document.getElementById('closeAskModal');
+        const askButtons = document.querySelectorAll('[data-ask]');
+
+        askButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                askModal.classList.remove('hidden');
+            });
+        });
+
+        closeAskModal.addEventListener('click', () => {
+            askModal.classList.add('hidden');
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === answerModal) {
+                answerModal.classList.add('hidden');
+            }
+            if (e.target === askModal) {
+                askModal.classList.add('hidden');
+            }
+        });
+
+        // Simulate topic chip click
+        const topicChips = document.querySelectorAll('.topic-chip');
+        topicChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                // In a real app, this would filter questions by topic
+                console.log(`Filtering by topic: ${chip.textContent.trim()}`);
+            });
+        });
+
+        // Simulate upvote/downvote
+        const voteButtons = document.querySelectorAll('[data-vote]');
+        voteButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const voteType = button.getAttribute('data-vote');
+                const countElement = button.querySelector('.vote-count');
+                let count = parseInt(countElement.textContent);
+                
+                if (voteType === 'up') {
+                    count++;
+                    button.classList.add('text-green-600', 'dark:text-green-400');
+                    button.classList.remove('text-gray-500', 'dark:text-gray-300');
+                } else {
+                    count--;
+                    button.classList.add('text-red-600', 'dark:text-red-400');
+                    button.classList.remove('text-gray-500', 'dark:text-gray-300');
+                }
+                
+                countElement.textContent = count;
+            });
+        });
+    </script>
+</body>
+</html>
